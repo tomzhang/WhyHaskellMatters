@@ -1,4 +1,4 @@
-# Why Haskell Matters [中文版](#README-cn.md)
+# Why Haskell Matters [中文版](https://github.com/tomzhang/WhyHaskellMatters/blob/master/README-cn.md)
 
 [![Actions Status](https://github.com/thma/WhyHaskellMatters/workflows/Haskell%20CI/badge.svg)](https://github.com/thma/WhyHaskellMatters/actions)
 
