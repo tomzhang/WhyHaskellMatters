@@ -841,37 +841,36 @@ odds  = [1,3..]
 20002
 ```
 
-### List comprehension
+### 列表推导式
 
-Do you remember *set comprehension* notation from your math classes?
+你还记得你数学课上设置的推导符号吗？
 
-As simple example would be the definition of the set of even numbers:
+简单的例子是偶数集的定义：
 
 > Evens = {i | i = 2n ∧ n ∊ ℕ}
 
-Which can be read as: Evens is defined as the set of all `i` where `i = 2*n` and `n` is an element of the set of natural numbers.
+它可以理解为：Evens定义为所有“i”的集合，其中“i=2*n”和“n”是自然数集合的一个元素。
 
-The Haskell *list comprehension* allows us to define - potentially infinite - lists with a similar syntax:
+Haskell*列表推导*允许我们使用类似的语法定义-潜在的无限-列表：
 
 ```haskell
 evens' = [2*n | n <- [1..]]
 ```
 
-Again we can avoid infinite loops by evaluating only a finite subset of `evens'`:
+同样，我们可以通过只计算“evens”的有限子集来避免无限循环：
 
 ```haskell
 λ> take 10 evens'
 [2,4,6,8,10,12,14,16,18,20]
 ```
 
-List comprehension can be very useful for defining numerical sets and series in a (mostly) declarative way that comes 
-close to the original mathematical definitions.
+列表推导式对于以（主要是）声明的方式定义数字集和序列非常有用接近最初的数学定义。
 
-Take for example the set `PT` of all pythagorean triples
+以毕达哥拉斯所有三元组的set`PT'为例
 
 >  PT = {(a,b,c) | a,b,c ∊ ℕ ∧ a² + b² = c² }
 
-The Haskell definition looks like this:
+Haskell的定义如下：
 
 ```haskell
 pt :: [(Natural,Natural,Natural)]
@@ -881,17 +880,14 @@ pt = [(a,b,c) | c <- [1..],
                 a^2 + b^2 == c^2]
 ```
 
-### Define control flow structures as abstractions
+### 将控制流结构定义为抽象
 
-In most languages it is not possible to define new conditional operations, e.g. your own `myIf` statement.
-A conditional operation will evaluate some of its arguments only if certain conditions are met.
-This is very hard - if not impossible - to implement in language with call-by-value semantics which evaluates all function arguments before
-actually evaluating the function body.
+在大多数语言中，不可能定义新的条件操作，例如您自己的“myIf”语句。条件运算只有在满足某些条件时才会计算其某些参数。如果不是不可能的话，这很难用一种语言来实现，这种语言的逐值调用语义在
+实际评估功能体。
 
-As Haskell implements call-by-need semantics, it is possible to define new conditional operations.
-In fact this is quite helpful when writing *domain specific languages*.
+由于Haskell实现了按需调用语义，因此可以定义新的条件操作。事实上，这在编写*领域特定语言*时非常有用。
 
-Here comes a very simple version of `myIf`:
+下面是一个非常简单的“myIf”版本：
 
 ```haskell
 myIf :: Bool -> b -> b -> b
@@ -901,8 +897,8 @@ myIf p x y = if p then x else y
 "true"
 ```
 
-A somewhat more useful control-structure is the `cond` (for conditional) function that stems from LISP and Scheme languages.
-It allows you to define a more table-like decision structure, somewhat resembling a `switch` statement from C-style languages:
+一个更有用的控制结构是源于LISP和Scheme语言的“cond”（用于条件）函数。
+它允许您定义更类似于表的决策结构，有点类似于C风格语言中的“switch”语句：
 
 ```haskell
 cond :: [(Bool, a)] -> a
@@ -911,7 +907,7 @@ cond ((True,  v):rest)  = v
 cond ((False, _):rest)  = cond rest
 ```
 
-With this function we can implement a signum function `sign` as follows:
+使用此函数，我们可以实现signum函数“sign”，如下所示：
 
 ```haskell
 sign :: (Ord a, Num a) => a -> a
@@ -927,26 +923,21 @@ sign x = cond [(x > 0     , 1 )
 -1
 ```
 
-## Type Classes
+## 类型类
 
-Now we come to one of the most distinguishing features of Haskell: *type classes*.
+现在我们来看看Haskell最显著的特性之一：*类型类*。
 
-In the section [Polymorphic Data Types](#polymorphic-data-types) we have seen that type variables (or parameters) allow 
-type declarations to be polymorphic like in:
+在这一节 [多态数据类型](#多态数据类型) 我们已经看到类型变量（或参数）允许要多态的类型声明，如：
 
 ```haskell
 data [a] = [] | a : [a]
 ```
 
-This approach is called *parametric polymorphism* and is used in several programming languages.
+这种方法被称为*参数多态性*，并在几种编程语言中使用。
 
-Type classes on the other hand address *ad hoc polymorphism* of data types. This approach is also known as
-*overloading*.
+另一方面，类型类处理数据类型的特殊多态性。这种方法也被称为*重载*。
 
-To get a first intuition let's start with a simple example.
-
-We would like to be able to use characters (represented by the data type `Char`) as if they were numbers.
-E.g. we would like to be able to things like:
+为了获得第一直觉，让我们从一个简单的例子开始。
 
 ```haskell
 λ> 'A' + 25
@@ -960,20 +951,20 @@ E.g. we would like to be able to things like:
 "hello world"
 ```
 
-To enable this we will have to *overload* the infix operators `(+)` and `(-)` to work not only on numbers but also on characters.
-Now, let's have a look at the type signature of the `(+)` operator:
+要实现这一点，我们将不得不*重载*中缀运算符“（+）”和“（-”，以便不仅处理数字，而且处理字符。
+现在，让我们看看`（+）`运算符的类型签名：
 
 ```haskell
 λ> :type (+)
 (+) :: Num a => a -> a -> a
 ```
 
-So `(+)` is not just declared to be of type `(+) :: a -> a -> a` but it contains a **constraint** on the type variable `a`, 
-namely `Num a =>`. 
-The whole type signature of `(+)` can be read as: for all types `a` that are members of the type class `Num` the operator `(+)` has the type
+因此，“（+）”不仅被声明为类型“（+）：：a->a->a”，而且它在类型变量“a”上包含一个**约束**，
+即“Num a=>”。
+“（+）”的整个类型签名可以读取为：对于属于类型类“Num”成员的所有类型“a”，运算符“（+）”具有
 `a -> a -> a`.
 
-Next we obtain more information on the type class `Num`:
+接下来，我们将获得有关类型类“Num”的更多信息：
 
 ```haskell
 λ> :info Num
@@ -994,14 +985,12 @@ instance Num Float -- Defined in `GHC.Float'
 instance Num Double -- Defined in `GHC.Float'
 ```
 
-This information details what functions a type `a` has to implement to be used as an instance of the `Num` type class.
-The line `{-# MINIMAL (+), (*), abs, signum, fromInteger, (negate | (-)) #-}` tells us what a minimal complete implementation
-has to provide.
-It also tells us that the types `Word`, `Integer`, `Int`, `Float` and `Double` are instances of the `Num` type class.
+此信息详细说明了类型“a”必须实现哪些函数才能用作“Num”类型类的实例。
+该行{-#MINIMAL+，（*）、abs、signum、fromInteger，（negate |（-）#-}告诉我们最小的完整实现是什么
+必须提供。它还告诉我们，“Word”、“Integer”、“Int”、“Float”和“Double”类型是“Num”类型类的实例。
 
-This is all we need to know to make the type `Char` an instance of the `Num` type class, so without further ado we
-dive into the implementation (please note that `fromEnum` converts a `Char` into an `Int` and `toEnum` converts 
-an `Int` into an `Char`):
+这是使类型“Char”成为“Num”类型类的实例所需知道的全部内容，因此无需进一步的ado
+深入到实现中（请注意“fromEnum”将“Char”转换为“Int”和“toEnum”并将“Int”转换为“Char”：
 
 ```haskell
 instance Num Char where
@@ -1014,23 +1003,20 @@ instance Num Char where
   negate c    = c
 ```
 
-This piece of code makes the type `Char` an instance of the `Num` type class. We can then use `(+)` and `(-) as demonstrated
-above.
+这段代码使类型“Char”成为“Num”类型类的实例。然后我们可以使用上面演示的“（+）”和“-”。
 
-Originally the idea for type classes came up to provide overloading of arithmetic operators
-in order to use the same operators across all numeric types.
+最初，类型类的想法是提供算术运算符的重载以便在所有数值类型中使用相同的运算符。
 
-But the type classes concept proved to be useful in a variety of other cases as well. 
-This has lead to a rich sets of type classes provided by the Haskell base library and
-a wealth of programming techniques that make use of this powerful concept.
+但是类型类的概念在其他许多情况下也被证明是有用的。这导致Haskell基库提供了丰富的类型类集，并且
+利用这个强大概念的大量编程技术。
 
-Here comes a graphic overview of some of the most important type classes in the Haskell base library:
+下面是Haskell库中一些最重要类型类的图形概述：
 
 ![The hierarchy of basic type classes](https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Base-classes.svg/510px-Base-classes.svg.png)
 
-I won't go all of these but I I'll cover some of the most important ones.
+我不会全部都过一遍，但我会报道一些最重要的。
 
-Let's start with Eq:
+让我们从Eq开始：
 
 ```haskell
 class  Eq a  where
@@ -1042,18 +1028,17 @@ class  Eq a  where
    x == y     =  not (x /= y)
 ```
 
-This definition states two things: 
+这个定义说明了两件事：
 
-- if a type `a` is to be made an instance of the class `Eq` it must support the 
-  functions `(==)` and `(/=)` both of them having  type `a -> a -> Bool`.  
-- `Eq` provides *default definitions* for `(==)` and `(/=)` in terms of each other. 
-   As a consequence, there is no need for a type in `Eq` to provide both definitions - 
-   given one of them, the other will work automatically.
+- 如果类型“a”要成为类“Eq”的实例，则它必须支持函数`（==）`和`（/=）`都具有类型“a->a->Bool”。
 
-Now we can turn some of the data types that we defined in the section on 
-[Algebraic Data Types](#algebraic-data-types) into instances of the `Eq` type class.
+- ‘Eq’为`（==）`和`（/=）`提供了*默认定义*。
 
-Here the type declarations as a recap:
+  因此，不需要'Eq'中的类型提供这两个定义-给定其中一个，另一个将自动工作。
+
+现在，我们可以在[代数数据类型](#代数数据类型) 中导入“Eq”类型类的实例。
+
+这里的类型声明是一个总结：
 
 ```haskell
 data Status   = Green | Yellow | Red
@@ -1061,8 +1046,7 @@ data Severity = Low | Middle | High
 data PairStatusSeverity = PSS Status Severity
 ```
 
-First, we create Eq instances for the simple types `Status` and `Severity` by defining the `(==)` 
-operator for each of them:
+首先，我们为简单类型'Status'和'Severity'创建Eq实例，方法是定义`（==）`操作符：
 
 ```haskell
 instance Eq Status where
@@ -1078,21 +1062,18 @@ instance Eq Severity where
   _      == _      = False
 ```
 
-Next, we create an `Eq` instance for `PairStatusSeverity` by defining the `(==)` operator:
+接下来，我们通过定义`（=）`运算符为` PairStatusSeverity`创建一个'Eq'实例：
 
 ```haskell
 instance Eq PairStatusSeverity where
    (PSS sta1 sev1) == (PSS sta2 sev2) = (sta1 == sta2) && (sev1 == sev2)
 ```
 
-With these definitions it is now possible to use the `(==)` and `(/=)` on our three types.
+有了这些定义，现在可以在我们的三种类型上使用`（==）`和`（/=）'。正如您将注意到的，实现“Eq”的代码相当无聊。即使是机器也能做到！
 
-As you will have noticed, the code for implementing `Eq` is quite boring. Even a machine could do it!
+这就是为什么语言设计者提供了一个“派生”机制，让编译器自动实现如果类实例可以像“Eq”那样自动派生，请键入该实例。
 
-That's why the language designers have provided a `deriving` mechanism to let the compiler automatically implement
-type class instances if it's automatically derivable as in the `Eq` case.
-
-With this syntax it much easier to let a type implement the `Eq` type class:
+使用此语法，更容易让类型实现“Eq”类型类：
 
 ```haskell
 data Status   = Green | Yellow | Red          deriving (Eq)
@@ -1100,10 +1081,9 @@ data Severity = Low | Middle | High           deriving (Eq)
 data PairStatusSeverity = PSS Status Severity deriving (Eq)
 ```
 
-This automatic deriving of type class instances works for many cases and reduces a lof of repetitive code.
+这种类型类实例的自动派生在许多情况下都有效，并减少了大量的重复代码。
 
-For example, its possible to automatically derive instances of the `Ord` type class, which provides
-ordering functionality:
+例如，它可以自动派生“Ord”类型类的实例，该类提供订购功能：
 
 ```haskell
 class  (Eq a) => Ord a  where
@@ -1113,27 +1093,26 @@ class  (Eq a) => Ord a  where
     ...
 ```
 
-If you are using `deriving` for the `Status` and `Severity` types, the Compiler will implement the
-ordering according to the ordering of the constructors in the type declaration.
-That is `Green < Yellow < Red` and `Low < Middle < High`:
+如果对“Status”和“Severity”类型使用“dering”，编译器将实现根据类型声明中构造函数的顺序排序。
+那就是 `Green < Yellow < Red` and `Low < Middle < High`:
 
 ```haskell
 data Status   = Green | Yellow | Red          deriving (Eq, Ord)
 data Severity = Low | Middle | High           deriving (Eq, Ord)
 ```
 
-### Read and Show
+### 读取和展示
 
-Two other quite useful type classes are `Read` and `Show` that also support automatic deriving. 
+另外两个非常有用的类型类是“Read”和“Show”，它们也支持自动派生。
 
-`Show` provides a function `show` with the following type signature:
+`Show`提供具有以下类型签名的函数'Show'：
 
 ```haskell
 show :: Show a => a -> String
 ```
 
-This means that any type implementing `Show` can be converted (or *marshalled*) into a `String` representation.
-Creation of a `Show` instance can be achieved by adding a `deriving (Show)` clause to the type declaration.
+这意味着实现“Show”的任何类型都可以转换（或*封送处理*）为“String”表示形式。
+“Show”实例的创建可以通过在类型声明中添加“derivering（Show）”子句来实现。
 
 ```haskell
 data PairStatusSeverity = PSS Status Severity deriving (Show)
@@ -1142,14 +1121,13 @@ data PairStatusSeverity = PSS Status Severity deriving (Show)
 "PSS Green Low"
 ```
 
-The `Read` type class is used to do the opposite: *unmarshalling* data from a String with the function `read`:
+“Read”类型类用于执行相反的操作：*使用函数“Read”从字符串中解组*数据：
 
 ```haskell
 read :: Read a => String -> a
 ```
 
-This signature says that for any type `a` implementing the `Read` type class the function `read` can
-reconstruct an instance of `a` from its String representation:
+此签名表示，对于实现“Read”类型类的任何类型“a”，函数“Read”都可以从字符串表示重建“a”的实例：
 
 ```haskell
 data PairStatusSeverity = PSS Status Severity deriving (Show, Read)
@@ -1162,49 +1140,38 @@ data Severity = Low | Middle | High           deriving (Show, Read)
 PSS Green Low
 ```
 
-Please note that it is required to specify the expected target type with the `:: PairStatusSeverity` clause.
-Haskell uses static compile time typing. At compile time there is no way to determine which type
-an expression `read "some string content"` will return. Thus expected type must be specified at compile time.
-Either by an implicit declaration given by some function type signature, or as in the example above,
-by an explicit declaration.
+请注意，需要用“：：PairStatusSeverity”子句指定预期的目标类型。Haskell使用静态编译时类型。在编译时无法确定哪种类型将返回“read”some string content“表达式。因此，必须在编译时指定所需的类型。
+通过某个函数类型签名给出的隐式声明，或者如上所示，通过明确的声明。
 
-Together `show` and `read` provide a convenient way to serialize (marshal) and deserialize (unmarshal) Haskell
-data structures.
-This mechanism does not provide any optimized binary representation, but it is still good enough for
-many practical purposes, the format is more compact than JSON, and it does not require a parser library.
+show和read一起提供了序列化（marshal）和反序列化（unmarshal）Haskell的方便方法数据结构。
+此机制不提供任何优化的二进制表示，但对于在许多实际应用中，格式比JSON更紧凑，而且不需要解析器库。
 
-### Functor and Foldable
+### 函子与可折叠
 
-The most interesting type classes are those derived from abstract algebra or category theory.
-Studying them is a very rewarding process that I'm highly recommending. However, it is definitely
-beyond the scope of the present article. Thus, I'm only pointing to two resources covering this part of the Haskell
-type class hierarchy.
-The first one is the legendary [Typeclassopedia](https://wiki.haskell.org/Typeclassopedia) by Brent Yorgey. 
-The second one is [Lambda the ultimate Pattern Factory](https://github.com/thma/LtuPatternFactory)  by myself. 
-This text is relating the algebraic type classes to software design patterns.
+最有趣的类型类是从抽象代数或范畴理论派生出来的。研究它们是一个非常有益的过程，我强烈推荐。不过，这绝对是超出了本文的范围。因此，我只指出了两个关于Haskell这一部分的资源键入类层次结构。
+第一个是传奇 [Typeclassopedia](https://wiki.haskell.org/Typeclassopedia) 布伦特·约吉. 
+第二个是 [Lambda 终极样板工厂](https://github.com/thma/LtuPatternFactory)   
+本文将代数类型类与软件设计模式联系起来。
 
-So we will only cover some of these type classes.
+所以我们将只讨论其中一些类型的类。
 
-In the section on [declarative programming](#declarative-programming) we came across to very useful concepts:
+在 [声明式编程](#声明式编程) 的章节中，we came across to very useful concepts:
 
-- mapping a function over all elements of a list (`map :: (a -> b) -> [a] -> [b]`)
-- reducing a list with a binary operation and the neutral (identity) element of that operation 
-  (`foldr :: (a -> b -> b) -> b -> [a] -> b`)
+- 将函数映射到列表的所有元素上 (`map :: (a -> b) -> [a] -> [b]`)
+- 使用二进制操作和该操作的中性（标识）元素减少列表(`foldr :: (a -> b -> b) -> b -> [a] -> b`)
 
-These concepts are not only useful for lists, but also for many other data structures. So it doesn't come as a
-surprise that there type classes that abstract these concepts.
+这些概念不仅对列表有用，而且对许多其他数据结构也有用。所以它并不奇怪的是，有类型类抽象了这些概念。
 
-#### Functor
+#### 函子
 
-The `Functor` type class generalizes the functionality of applying a function to a value in a context without altering the context, 
-(e.g. mapping a function over a list `[a]` which returns a new list `[b]` of the same length):
+“Functor”类型类泛化了将函数应用于上下文中的值而不更改上下文的功能，（例如，将函数映射到列表`[a]`上，该列表`[b]`返回相同长度的新列表`[a]'）：
 
 ```haskell
 class Functor f where
   fmap :: (a -> b) -> f a -> f b
 ```
 
-Let's a closer look at this idea by playing with a simple binary tree:
+让我们通过玩一个简单的二叉树来进一步了解这个想法：
 
 ```haskell
 data Tree a = Leaf a | Node (Tree a) (Tree a) deriving (Show)
@@ -1220,10 +1187,9 @@ toSeverity Yellow = Middle
 toSeverity Red    = High
 ```
 
-We want to use the function `toSeverity :: Status -> Severity` to convert all `Status` elements of the `statusTree`
-into `Severity` instances.
+我们希望使用函数“to Severity：：Status->Severity”转换“statusTree”的所有`Status'元素进入“Severity”实例。
 
-Therefore, we let `Tree` instantiate the `Functor` class:
+因此，我们让'Tree'实例化'Functor'类：
 
 ```haskell
 instance Functor Tree where
@@ -1232,7 +1198,7 @@ instance Functor Tree where
 ```
 
 
-We can now use `fmap` on `Tree` data structures:
+我们现在可以在“Tree”数据结构上使用“fmap”：
 
 ```haskell
 λ> fmap toSeverity statusTree
@@ -1241,21 +1207,18 @@ Node (Leaf Low) (Node (Leaf High) (Leaf Middle))
 it :: Tree Severity
 ```
 
-As already described above, fmap maintains the tree structure unchanged but converts the type of each `Leaf` element, 
-which effectively changes the type of the tree to `Tree Severity`.
+如上所述，fmap保持树结构不变，但转换每个“Leaf”元素的类型，有效地将树的类型更改为“Tree Severity”。
 
-As derivation of `Functor` instances is a boring task, it is again possible to use the `deriving` clause to
-let data types instantiate `Functor`:
+由于派生“Functor”实例是一项枯燥的任务，因此再次可以使用“dering”子句来让数据类型实例化“Functor”：
 
 ```haskell
 {-# LANGUAGE DeriveFunctor #-} -- this pragma allows automatic deriving of Functor instances
 data Tree a = Leaf a | Node (Tree a) (Tree a) deriving (Show, Functor)
 ```
 
-#### Foldable
+#### 可折叠
 
-As already mentioned, `Foldable` provides the ability to perform *folding* operations on any data type instantiating the
-`Foldable` type class:
+如前所述，“Foldable”提供了对实例化`可折叠`type类：
 
 ```haskell
 class Foldable t where
@@ -1277,18 +1240,16 @@ class Foldable t where
   product :: Num a => t a -> a
 ```
 
-besides the abstraction of the `foldr` function, `Foldable` provides several other useful operations when dealing with
-*container*-like structures.
+除了“foldr”函数的抽象之外，“Foldable”在处理*容器类结构。
 
-Because of the regular structure algebraic data types it is again possible to automatically derive `Foldable` instances
-by using the `deriving` clause:
+由于规则结构的代数数据类型，再次可以自动派生“可折叠”实例通过使用“dering”子句：
 
 ```haskell
 {-# LANGUAGE DeriveFunctor, DeriveFoldable #-} -- allows automatic deriving of Functor and Foldable
 data Tree a = Leaf a | Node (Tree a) (Tree a) deriving (Eq, Show, Read, Functor, Foldable)
 ```
 
-Of course, we can also implement the `foldr` function on our own:
+当然，我们也可以自己实现“foldr”功能：
 
 ```haskell
 instance Foldable Tree where
@@ -1296,7 +1257,7 @@ instance Foldable Tree where
   foldr f acc (Node a b) = foldr f (foldr f acc b) a
 ```
 
-We can now use `foldr` and other class methods of `Foldable`:
+我们现在可以使用“foldr”和“Foldable”的其他类方法：
 
 ```haskell
 statusTree :: Tree Status
@@ -1326,20 +1287,16 @@ Red
 
 ### The Maybe Monad
 
-Now we will take the data type `Maybe` as an example to dive deeper into the more complex parts of the
-Haskell type class system.
+现在我们将以数据类型“Maybe”为例，深入了解Haskell类型的类系统。
 
-The `Maybe` type is quite simple, it can be either a null value, called `Nothing` or a value of type `a` 
-constructed by `Just a`:
+“Maybe”类型非常简单，它可以是空值、名为“Nothing”或类型为“a”的值`由“Just a”构造：
 
 ```haskell
 data  Maybe a  =  Nothing | Just a deriving (Eq, Ord)
 ```
 
-The Maybe type is helpful in situations where certain operation *may* return a valid result or not.
-Take for instance the function `lookup` from the Haskell base library. It looks up a key in a list of
-key-value pairs. If it finds the key, the associated value `val` is returned - but wrapped in a Maybe: `Just val`.
-If it doesn't find the key, `Nothing` is returned:
+Maybe类型在某些操作*可能*返回有效结果或不返回有效结果的情况下非常有用。以Haskell库中的函数'lookup'为例。它在一个键值对。如果找到键，则返回关联的值“val”，但包装在Maybe:“Just val”中。
+如果找不到key，则返回“Nothing”：
 
 ```haskell
 lookup :: (Eq a) => a -> [(a,b)] -> Maybe b
@@ -1349,16 +1306,14 @@ lookup  key ((k,val):rest)
     | otherwise =  lookup key rest
 ```
 
-The `Maybe` type is a very simple means that helps to avoid NullPointer errors or similar issues with undefined results.
-Thus, many languages have adopted it under different names. In Java for instance, it is called `Optional`.
+“Maybe”类型是一种非常简单的方法，有助于避免空指针错误或具有未定义结果的类似问题。
+因此，许多语言以不同的名称采用了它。例如，在Java中，它被称为“可选”。
 
-#### Total functions
+#### Total 函数
 
-In Haskell, it is considered good practise to use *total functions* - that is functions that have defined
-return values for all possible input values - where ever possible to avoid runtime errors.
+在Haskell中，使用*total functions*-即定义了返回所有可能输入值的值-尽可能避免运行时错误。
 
-Typical examples for *partial* (i.e. non-total) functions are division and square roots.
-We can use `Maybe` to make them total:
+*偏*（即非全）函数的典型例子是除法和平方根。我们可以用“Maybe”来表示它们的总数：
 
 ```haskell
 safeDiv :: (Eq a, Fractional a) => a -> a -> Maybe a
@@ -1371,13 +1326,12 @@ safeRoot x
   | otherwise = Just (sqrt x)
 ```
 
-In fact, there are alternative base libraries that don't provide any partial functions.
+事实上，有一些替代的基本库不提供任何部分函数。
 
-#### Composition of Maybe operations 
+#### Maybe操作符的组合
 
-Now let's consider a situation where we want to combine several of those functions. 
-Say for example we first want to lookup the divisor from a key-value table, then perform a
-division with it and finally compute the square root of the quotient:
+现在让我们考虑这样一种情况：我们希望合并其中的几个函数。例如，我们首先要从键值表中查找除数，然后执行
+用它除法，最后计算商的平方根：
 
 ```haskell
 findDivRoot :: Double -> String -> [(String, Double)] -> Maybe Double
@@ -1399,24 +1353,18 @@ Nothing
 Nothing
 ```
 
-The resulting control flow is depicted in the following diagram:
+结果控制流如下图所示：
 ![The Maybe railroad](img/maybe.png)
 
-In each single step we have to check for `Nothing`, in that case we directly short circuit to an overall `Nothing` result value.
-In the `Just` case we proceed to the next processing step.
+在每一个步骤中，我们都必须检查“Nothing”，在这种情况下，我们直接对“Nothing”结果值进行短路处理。
+在“公平”的情况下，我们进入下一个处理步骤。
 
-This kind of handling is repetitive and buries the actual intention under a lot of boilerplate.
-As Haskell uses layout (i.e. indentation) instead of curly brackets to separate blocks the code will
-end up in what is called the *dreaded staircase*: it marches to the right of the screen.
+这种处理是重复的，把实际意图埋在许多样板下。由于Haskell使用布局（即缩进）而不是花括号来分隔块，代码将最后进入所谓的“可怕的阶梯”：它向屏幕的右侧行进。
 
-So we are looking for a way to improve the code by abstracting away the chaining of functions that return
-`Maybe` values and providing a way to *short circuit* the `Nothing` cases.
+因此，我们正在寻找一种方法，通过抽象出返回的函数链来改进代码`也许“值”和提供了一种方法来“短路”那些“无”的情况。
 
-We need an operator `andThen` that takes the `Maybe` result of a first function
-application as first argument, and a function as second argument that will be used in the `Just x` case and again 
-returns a `Maybe` result.
-In case that the input is `Nothing` the operator will directly return `Nothing` without any further processing.
-In case that the input is `Just x` the operator will apply the argument function `fun` to `x` and return its result:
+我们需要一个运算符，它接受第一个函数的“可能”结果。应用程序作为第一个参数，函数作为第二个参数，将在'Just x'情况下反复使用返回“Maybe”结果。
+如果输入为“Nothing”，则运算符将直接返回“Nothing”，而无需进一步处理。如果输入为“Just x”，则运算符将参数函数“fun”应用于“x”，并返回其结果：
 
 ```haskell
 andThen :: Maybe a -> (a -> Maybe b) -> Maybe b
@@ -1424,7 +1372,7 @@ andThen Nothing _fun = Nothing
 andThen (Just x) fun = fun x
 ```
 
-We can then rewrite `findDivRoot` as follows:
+然后我们可以重写“findDivRoot”如下：
 
 ```haskell
 findDivRoot'''' x key map =
@@ -1433,28 +1381,26 @@ findDivRoot'''' x key map =
   safeRoot d
 ```
 
-(Side note: In Java the `Optional` type has a corresponding method: [Optional.flatmap](https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#flatMap-java.util.function.Function-))
+(附带说明：在Java中，“Optional”类型有一个对应的方法: [Optional.flatmap](https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html#flatMap-java.util.function.Function-))
 
-This kind of chaining of functions in the context of a specific data type is quite common. So, it doesn't surprise us that
-there exists an even more abstract `andThen` operator that works for arbitrary parameterized data types:
+这种在特定数据类型的上下文中链接函数的方式非常常见。所以，这并不奇怪，
+还有一个更抽象的“and”运算符可用于任意参数化数据类型：
 
 ```haskell
 (>>=) :: Monad m => m a -> (a -> m b) -> m b
 ```
 
-When we compare this *bind* operator with the type signature of the `andThen` operator:
+当我们将此*bind*运算符与“and”运算符的类型签名进行比较时：
 
 ```haskell
 andThen :: Maybe a -> (a -> Maybe b) -> Maybe b
 
 ```
 
-we can see that both operators bear the same structure.
-The only difference is that instead of the concrete type `Maybe` the signature of `(>>=)`
-uses a type variable `m` with a `Monad` type class constraint. We can read this type signature as:
+我们可以看到这两个运算符具有相同的结构。唯一的区别是，与具体类型“Maybe”不同的是，“Maybe”的签名（>>=）`使用带有“Monad”类型类约束的类型变量“m”。我们可以将此类型签名读为：
 
-For any type `m` of the type class `Monad` the operator `(>>=)` is defined as `m a -> (a -> m b) -> m b`
-Based on `(>>=)` we can rewrite the `findDivRoot` function as follows:
+对于类型类“Monad”的任何类型“m”，运算符“（>>=）”定义为 `m a -> (a -> m b) -> m b`
+基于 `(>>=)` 我们可以将 `findDivRoot` 函数写成:
 
 ```haskell
 findDivRoot' x key map =
@@ -1463,9 +1409,8 @@ findDivRoot' x key map =
   safeRoot d
 ```
 
-Monads are a central element of the Haskell type class ecosystem. In fact the monadic composition based on `(>>=)` is so
-frequently used that there exists some specific syntactic sugar for it. It's called the do-Notation.
-Using do-Notation `findDivRoot` looks like this:
+单子是Haskell类生态系统的核心元素。实际上，基于`（>='）的一元构图是这样的。经常使用的是它有一些特定的语法糖。它叫做do符号。
+使用do符号“findDivRoot”如下：
 
 ```haskell
 findDivRoot''' x key map = do
@@ -1474,61 +1419,59 @@ findDivRoot''' x key map = do
   safeRoot d
 ```
 
-This looks quite like a sequence of statements (including variable assignments) in an imperative language.
-Due to this similarity Monads have been aptly called [programmable semicolons](http://book.realworldhaskell.org/read/monads.html#id642960).
-But as we have seen: below the syntactic sugar it's a purely functional composition!
+这看起来很像命令式语言中的一系列语句（包括变量赋值）。
+由于这种相似性，单子被恰当地称为 [可编程分号](http://book.realworldhaskell.org/read/monads.html#id642960).
+但正如我们所看到的：在句法糖的下面，它是一个纯粹的功能组合！
 
-### Purity
+### 纯净性
 
-A function is called pure if it corresponds to a function in the mathematical sense: it associates each possible input 
-value with an output value, and does nothing else. In particular,
+如果函数与数学意义上的函数相对应，则称之为纯函数：它将每个可能的输入关联起来
+有输出值的值，而不做其他任何事情。特别地，
 
-- it has no side effects, that is to say, invoking it produces no observable effect other than the result it returns; 
-  it cannot also e.g. write to disk, or print to a screen.
-- it does not depend on anything other than its parameters, so when invoked in a different context or at a different 
-  time with the same arguments, it will produce the same result.
-  
+- 它没有副作用，也就是说，调用它除了返回的结果之外，不会产生任何可观察的效果；
+  它也不能写入磁盘或打印到屏幕。
+- 它不依赖于除参数以外的任何东西，因此当在不同的上下文中或在不同的上下文中调用时
+  如果参数相同，则会产生相同的结果。
 
-Purity makes it easy to reason about code, as it is so close to mathematical calculus. 
-The properties of a Haskell program can thus often be determined with equational reasoning.
-(As an example I have provided an [example for equational reasoning in Haskell](functor-proof.md).
+纯粹性使我们很容易对代码进行推理，因为它与数学微积分非常接近。
+因此，Haskell程序的属性通常可以通过等式推理来确定。
+（作为一个例子，我提供了一个 [Haskel中的等式推理实例](functor-proof.md).
 
-Purity also improves testability: It is much easier to set up tests without worrying about mocks or stubs to factor out
-access to backend layers.
+纯粹性还提高了可测试性：不必担心模型或存根的因素，就可以更容易地设置测试访问后端层。
 
-All the functions that we have seen so far are all *pure* code that is free from side effects.
+到目前为止，我们看到的所有函数都是纯代码，没有任何副作用。
 
-So how can we achieve side effects like writing to a database or serving HTTP requests in Haskell?
+那么，我们如何在Haskell中实现诸如写入数据库或服务HTTP请求之类的副作用呢？
 
-The Haskell language designers came up with a solution that distinguishes Haskell from most other languages:
-Side effects are always explicitly declared in the function type signature.
-In the next section we will learn how exactly this works.
+Haskell语言设计师提出了一个解决方案，将Haskell与大多数其他语言区分开来：
 
-### Explicit side effects with the IO Monad
+副作用总是在函数类型签名中显式声明的。
+在下一节中，我们将了解这是如何工作的。
 
-> Monadic I/O is a clever trick for encapsulating sequential, imperative computation, so that it can “do no evil” 
-> to the part that really does have precise semantics and good compositional properties.
->
-> [Conal Elliott](http://conal.net/blog/posts/is-haskell-a-purely-functional-language)
+### IO-Monad的显性副作用
 
-The most prominent Haskell Monad is the `IO` monad. It is used to compose operations that perform I/O.
-We'll study this with a simple example.
+> 一元I/O是封装顺序的、命令式计算的聪明技巧，因此它可以对于真正有精确语义和良好的组合特性的部分“无恶不作”。
+> 
+>[Conal Elliott](http://conal.net/blog/posts/is-haskell-a-purely-functional-language)
 
-In an imperative language, reading a String from the console simply returns a String value (e.g. `BufferedReader.readline()` in Java: 
+最著名的Haskell单子是“IO”单子。它用于组合执行I/O的操作。
+我们将用一个简单的例子来研究这个问题。
+
+在命令式语言中，从控制台读取字符串只需返回字符串值(e.g. Java中的`BufferedReader.readline()` : 
 `public String readLine() throws IOException`).
 
-In Haskell the function `getLine` does not return a `String` value but an `IO String`: 
+在Haskell中，“getLine”函数不返回“String”值，而是返回“IO String”：
 
 ```haskell
 getLine :: IO String
 ```
-This could be interpreted as: `getLine` returns a String in an IO context. 
-In Haskell, it is not possible to extract the String value from its IO context (In Java on the other hand you could always 
-catch away the `IOException`).
+这可以解释为：`getLine`在IO上下文中返回一个字符串。
+在Haskell中，不可能从其IO上下文中提取字符串值（另一方面，在Java中，您可以始终
+抓住“IOException”）。
 
-So how can we use the result of `getLine` in a function that takes a `String` value as input parameter?
+那么，如何在一个函数中使用“getLine”的结果，该函数将“String”值作为输入参数？
 
-We need the monadic bind operation `(>>=)` to do this in the same as we already saw in the `Maybe` monad:
+我们需要一元绑定操作“（>>=）”来执行此操作，就像我们在“Maybe”一元中已经看到的那样：
 
 ```haskell
 -- convert a string to upper case
@@ -1548,7 +1491,7 @@ hello world
 "HELLO WORLD"
 ```
 
-or with do-Notation:
+或使用do符号：
 ```haskell
 up' :: IO () 
 up' = do
@@ -1556,50 +1499,32 @@ up' = do
   print (strToUpper str)
 ```
 
-Making side effects explicit in function type signatures is one of the most outstanding achievements of Haskell.
-This feature will lead to a very rigid distinction between code that is free of side effects (aka *pure* code) and code 
-that has side effects (aka *impure* code).
+在函数类型签名中明确副作用是Haskell最杰出的成就之一。
+这个特性将导致在没有副作用的代码（也就是纯代码）和代码之间有一个非常严格的区别有副作用（又称不洁代码）。
 
-Keeping domain logic *pure* - particularly when working only with *total* functions - will dramatically improve 
-reliability and testability as tests can be run without setting up mocks or stubbed backends.
+保持域逻辑*pure*-特别是当只使用*total*函数时-将显著提高可靠性和可测试性，因为测试可以在不设置模型或存根后端的情况下运行。
 
-It's not possible to introduce side effects without making them explicit in type signatures. 
-There is nothing like the *invisible* Java `RuntimeExceptions`. 
-So you can rely on the compiler to detect any violations of a rule like "No impure code in domain logic".
+如果不在类型签名中明确说明它们，就不可能引入副作用。没有什么比不可见的Java“RuntimeExceptions”更合适的了。因此，您可以依赖编译器来检测任何违反规则的行为，比如“域逻辑中没有不纯代码”。
 
-I've written a simple Restaurant Booking REST Service API that explains how Haskell helps you to keep domain logic pure by
-organizing your code according to the [ports and adapters pattern](https://github.com/thma/RestaurantReservation).
+我已经编写了一个简单的餐厅预订REST服务API，它解释了Haskell如何帮助您通过组织你代码根据 [ports and adapters pattern](https://github.com/thma/RestaurantReservation).
 
-The section on type classes (and on Monads in particular) have been quite lengthy. Yet, they have hardly shown more than
-the tip of the iceberg. If you want to dive deeper into type classes, I recommend 
-[The Typeclassopedia](https://wiki.haskell.org/Typeclassopedia).
+关于类型类（尤其是monad）的部分相当长。然而，他们几乎没有表现出超过冰山一角。如果你想深入研究类型类，我建议你读[The Typeclassopedia](https://wiki.haskell.org/Typeclassopedia).
 
-## Conclusion
+## 总结
 
-We have covered quite a bit of terrain in the course of this article.
+在本文中，我们已经介绍了相当多的内容。
 
-It may seem that Haskell has invented an intimidating mass of programming concepts.
-But in fact, Haskell inherits much from earlier functional programming languages.
+Haskell似乎发明了一大堆令人生畏的编程概念。但事实上，Haskell继承了早期函数式编程语言的许多优点。
 
-Features like first class functions, comprehensive list APIs or declarative programming
-had already been introduced with Lisp and Scheme.
+一类函数、综合列表api或声明式编程等功能已经引入了Lisp和Scheme。
 
-Several others, like pattern matching, non-strict evaluation, immutability, purity, static and strong typing,
-type inference, algebraic data types and polymorphic data types
-have been invented in languages like Hope, Miranda an ML.
+还有一些，比如模式匹配，非严格评估，不变性，纯度，静态和强类型，类型推理、代数数据类型和多态数据类型
+已经被发明的语言像Hope，Miranda和ML。
 
-Only a few features like type classes and explicit side effects / monadic I/O have first been introduced in Haskell.
+Haskell中只首次引入了一些特性，如类型类和显式的副作用/一元I/O。所以如果你已经知道一些函数式语言，Haskell对你来说不会陌生。对于有面向对象语言背景的开发人员来说，概念上的差距会更大。
 
-So if you already know some functional languages, Haskell will not be to alien to you.
-For developers with a background in OO languages, the conceptual gap will be much larger.
+我希望这篇文章有助于缩小这一差距，并更好地解释 [why functional programming](https://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf) - 和  Haskell in particular - 尤其重要.
 
-I hope that this article helped to bridge that gap a bit and to better explain [why 
-functional programming](https://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf) - and Haskell in particular - matters.
-
-Using functional programming languages - or applying some of its techniques - will help
-to create designs that are closer to the problem domain (as intented by domain driven design), 
-more readable (due to their declarative character), allow equational reasoning, will provide more rigid
-separation of business logic and side effects,
-are more flexible for future changes or extensions, provide better testability (supporting BDD, TDD and property based testing), 
-will need much less debugging, are better to maintain and, last not least, will be more fun to write.
+使用函数式编程语言——或者应用它的一些技术——将有助于为了创建更接近问题领域的设计（正如领域驱动设计所期望的那样），更具可读性（由于它们的声明性），允许等式推理，将提供更严格的
+分离业务逻辑和副作用，对于未来的更改或扩展更加灵活，提供更好的可测试性（支持BDD、TDD和基于属性的测试），将需要更少的调试，更好的维护，最后，将更有趣的编程。
 

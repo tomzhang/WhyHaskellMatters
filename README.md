@@ -1,4 +1,4 @@
-# Why Haskell Matters
+# Why Haskell Matters [中文版](#README-cn.md)
 
 [![Actions Status](https://github.com/thma/WhyHaskellMatters/workflows/Haskell%20CI/badge.svg)](https://github.com/thma/WhyHaskellMatters/actions)
 
@@ -408,7 +408,7 @@ With the things that we have learnt so far, we can now start to implement some m
 So what about implementing the recursive [factorial function](https://en.wikipedia.org/wiki/Factorial)?
 
 The factorial function can be defined as follows:
- 
+
 > For all n ∈ ℕ<sub>0</sub>:
 >```
 >0! = 1
@@ -508,8 +508,9 @@ Using algebraic data types has several advantages:
 - The compiler can derive many complex functionality automatically for ADTs as they are constructed in
   such a regular way.
   
+
 We will cover the interesting combination of ADTs and pattern matching in the following sections.  
-  
+
 ## Polymorphic Data Types
 
 Forming pairs or more generally n-tuples is a very common task in programming. 
@@ -839,7 +840,7 @@ Now we come to topic that was one of the main drivers for the Haskell designers:
 away from the then standard model of strict evaluation.
 
 Non-Strict Evaluation (aka. normal order reduction) has one very important property. 
- 
+
 > If a lambda expression has a normal form, then normal order reduction will terminate and find that normal form.
 >
 > Church-Rosser Theorem II
@@ -1043,7 +1044,7 @@ To get a first intuition let's start with a simple example.
 
 We would like to be able to use characters (represented by the data type `Char`) as if they were numbers.
 E.g. we would like to be able to things like:
- 
+
 ```haskell
 λ> 'A' + 25
 'Z'
@@ -1125,7 +1126,7 @@ Here comes a graphic overview of some of the most important type classes in the 
 ![The hierarchy of basic type classes](https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Base-classes.svg/510px-Base-classes.svg.png)
 
 I won't go all of these but I I'll cover some of the most important ones.
- 
+
 Let's start with Eq:
 
 ```haskell
@@ -1136,7 +1137,7 @@ class  Eq a  where
        --      (==) or (/=)
    x /= y     =  not (x == y)
    x == y     =  not (x /= y)
-``` 
+```
 
 This definition states two things: 
 
@@ -1156,7 +1157,7 @@ data Status   = Green | Yellow | Red
 data Severity = Low | Middle | High 
 data PairStatusSeverity = PSS Status Severity
 ```
- 
+
 First, we create Eq instances for the simple types `Status` and `Severity` by defining the `(==)` 
 operator for each of them:
 
@@ -1175,7 +1176,7 @@ instance Eq Severity where
 ```
 
 Next, we create an `Eq` instance for `PairStatusSeverity` by defining the `(==)` operator:
- 
+
 ```haskell
 instance Eq PairStatusSeverity where
    (PSS sta1 sev1) == (PSS sta2 sev2) = (sta1 == sta2) && (sev1 == sev2)
@@ -1544,7 +1545,7 @@ When we compare this *bind* operator with the type signature of the `andThen` op
 andThen :: Maybe a -> (a -> Maybe b) -> Maybe b
 
 ```
- 
+
 we can see that both operators bear the same structure.
 The only difference is that instead of the concrete type `Maybe` the signature of `(>>=)`
 uses a type variable `m` with a `Monad` type class constraint. We can read this type signature as:
@@ -1584,6 +1585,7 @@ value with an output value, and does nothing else. In particular,
 - it does not depend on anything other than its parameters, so when invoked in a different context or at a different 
   time with the same arguments, it will produce the same result.
   
+
 Purity makes it easy to reason about code, as it is so close to mathematical calculus. 
 The properties of a Haskell program can thus often be determined with equational reasoning.
 (As an example I have provided an [example for equational reasoning in Haskell](functor-proof.md).
